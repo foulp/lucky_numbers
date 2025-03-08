@@ -5,28 +5,25 @@ import numpy as np
 
 class Board:
     def __init__(self, board_size: int, default_value: int = -1):
-        self.board: np.ndarray = default_value * np.ones((board_size, board_size), dtype=int)
-        self.default_value = default_value
+        self.board = np.array([[Tile(default_value) for _ in range(board_size)] for _ in range(board_size)])
+        self.default_value = Tile(default_value)
 
-    def place_tile(self, tile: Tile, x: int, y: int):
-        try:
-            assert 0 <= x < self.board.shape[0]
-            assert 0 <= y < self.board.shape[1]
-        except AssertionError:
-            print(f"X and Y must be respectively between 0 and {self.board.shape} excluded")
-            return False, None
+    def init_diagonal(self, queue_tiles: QueueTiles) -> None:
+        diag_tiles = [queue_tiles.draw_tile() for _ in range(self.board.shape[0])]
+        diag_tiles.sort()
+        np.fill_diagonal(self.board, diag_tiles)
+        return
 
-        previous_tile: int = self.board[x, y]
-        self.board[x, y] = tile.value
-        if self.is_valid():
-            if previous_tile == -1:
-                return True, None
-            return True, previous_tile
-        self.board[x, y] = previous_tile
-        print(f"Location is not valid, rows and/or columns are not stricly increasing")
-        return False, None
+    def place_tile(self, tile: Tile, x: int, y: int) -> Tile:
+        previous_tile = self.board[x, y]
+        self.board[x, y] = tile
+        return previous_tile
 
-    def is_valid(self):
+    def is_valid(self) -> bool:
+        """
+        Function to check of the board is correct : all rows and columns are strictly increasing
+        :return: bool
+        """
         for i in range(self.board.shape[0]):
             if any(np.diff(self.board[i][self.board[i] != self.default_value]) <= 0):
                 return False
@@ -34,12 +31,20 @@ class Board:
                 return False
         return True
 
-    def is_ended(self):
+    def is_valid_spot(self, tile: Tile, x: int, y: int) -> bool:
+        """
+        Function to check if tile can be correctly placed in (x, y)
+        :param tile: Tile to be placed
+        :param x: int
+        :param y: int
+        :return: bool
+        """
+        previous_tile = self.place_tile(tile, x, y)
+        valid = self.is_valid()
+        self.place_tile(previous_tile, x, y)
+        return valid
+
+    def is_ended(self) -> bool:
         if (self.board == self.default_value).sum() == 0:
             return True
         return False
-
-    def init_diagonal(self, queue_tiles: QueueTiles):
-        diag_tiles: list[Tile] = [queue_tiles.draw_tile().value for _ in range(self.board.shape[0])]
-        diag_tiles.sort()
-        np.fill_diagonal(self.board, diag_tiles)
