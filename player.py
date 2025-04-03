@@ -32,8 +32,6 @@ class Player:
                     print(opponents[i].board.board)
 
         if len(stock):
-            if self.verbose:
-                print(f"These are the tiles on the stock: {stock}.")
             tried_tiles = []
             while True:
                 picked_tile = self.pick_tile_from_stock(stock)
@@ -54,7 +52,6 @@ class Player:
                     stock.sort()
                     break
 
-
         drawn_tile = queue_tiles.draw_tile()
         return self.place_drawn_tile(drawn_tile)
 
@@ -63,6 +60,8 @@ class Player:
         Players function to pick a tile from the stock.
         :return: Tile chosen by the player, Tile(default_value) if no tile was picked
         """
+        if self.verbose:
+            print(f"These are the tiles on the stock: {stock}.")
         while True:
             player_choice = input(f"If you want one, type its value. Otherwise type 0 to draw one tile.\n")
             try:
@@ -162,17 +161,17 @@ class BotPlayer(Player):
         Players function to pick a tile.
         :return: Tile drawn by the Bot
         """
-        for t in stock:
-            target_diag = t // 3
+        for tile in stock:
+            target_diag = tile // 3
             for row in range(0, self.board.board.shape[0]):
                 col = target_diag - row
                 if col < 0 or col >= self.board.board.shape[1]:
                     continue
                 if target_diag not in (self.board.board[row, col] // 3, self.board.board[col, row] // 3):
-                    stock.remove(t)
+                    stock.remove(tile)
                     if self.verbose:
-                        print(f"Getting tile {t} from stock.")
-                    return t
+                        print(f"Getting tile {tile} from stock.")
+                    return tile
         return Tile(self.board.default_value)
 
     def place_drawn_tile(self, tile: Tile) -> Tile:
