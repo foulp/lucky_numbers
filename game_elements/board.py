@@ -1,7 +1,8 @@
-from queue_tiles import QueueTiles
-from tile import Tile
 import numpy as np
 from typing import cast
+
+from game_elements.queue_tiles import QueueTiles
+from game_elements.tile import Tile
 
 
 class Board:

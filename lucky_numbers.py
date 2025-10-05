@@ -1,6 +1,11 @@
-from player import Player, BotPlayer
-from queue_tiles import QueueTiles
 import numpy as np
+
+from game_elements.queue_tiles import QueueTiles
+from game_elements.tile import Tile
+from players.player import Player
+from players.player_bot import BotPlayer
+from players.player_human import HumanPlayer
+
 BOARD_SIZE = 4
 
 
@@ -15,12 +20,12 @@ class LuckyNumbers:
         assert 0 <= nb_humans <= 4
         assert 0 <= nb_bots <= 4
         assert 2 <= nb_bots + nb_humans <= 4
-        self.nb_players = nb_humans + nb_bots
-        self.players = {i: Player(i, board_size, True) for i in range(nb_humans)}
+        self.nb_players: int = nb_humans + nb_bots
+        self.players: dict[int, Player] = {i: HumanPlayer(i, board_size, True) for i in range(nb_humans)}
         self.players.update({nb_humans + i: BotPlayer(i, board_size, False) for i in range(nb_bots)})
-        self.queue_tiles = QueueTiles(self.nb_players)
-        self.stock = []
-        self.current_player = np.random.randint(0, self.nb_players)
+        self.queue_tiles: QueueTiles = QueueTiles(self.nb_players)
+        self.stock: list[Tile] = []
+        self.current_player: int = np.random.randint(0, self.nb_players)
 
         for i in self.players:
             self.players[i].board.init_diagonal(self.queue_tiles)

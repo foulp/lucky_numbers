@@ -1,6 +1,7 @@
 import random
 from collections import deque
-from tile import Tile
+
+from game_elements.tile import Tile
 
 
 class QueueTiles:
