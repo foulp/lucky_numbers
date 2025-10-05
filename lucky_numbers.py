@@ -1,6 +1,5 @@
 from player import Player, BotPlayer
 from queue_tiles import QueueTiles
-from tile import Tile
 import numpy as np
 BOARD_SIZE = 4
 

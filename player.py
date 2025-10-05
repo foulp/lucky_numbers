@@ -1,6 +1,7 @@
 from board import Board
 from queue_tiles import QueueTiles
 from tile import Tile
+from typing import Optional, cast
 from typing_extensions import Self
 
 
@@ -9,14 +10,14 @@ class Player:
         self.index: int = index
         self.board: Board = Board(board_size)
         self.tiles: int = 0
-        self.verbose = verbose
+        self.verbose: bool = verbose
 
     def play_turn(self, queue_tiles: QueueTiles, stock: list[Tile], opponents: dict[int: Self]) -> Tile:
         """
         Player turn.
         First, player can select a Tile from the stock, if not empty.
         Loop until a tile selected from stock is correctly placed or player chooses to draw a tile.
-        Then, if no tile from the stock was correctly place, a tile is drawn and placed or discarded
+        Then, if no tile from the stock was correctly placed, a tile is drawn and placed or discarded
         :param queue_tiles:
         :param stock:
         :param opponents:
@@ -34,12 +35,12 @@ class Player:
         if len(stock):
             tried_tiles = []
             while True:
-                picked_tile = self.pick_tile_from_stock(stock)
+                picked_tile = self._pick_tile_from_stock(stock)
                 if picked_tile == self.board.default_value:
                     stock.extend(tried_tiles)
                     stock.sort()
                     break
-                exchanged_tile = self.place_stocked_tile(picked_tile)
+                exchanged_tile = self._place_stocked_tile(picked_tile)
                 if exchanged_tile != picked_tile:
                     stock.extend(tried_tiles)
                     stock.sort()
@@ -53,9 +54,9 @@ class Player:
                     break
 
         drawn_tile = queue_tiles.draw_tile()
-        return self.place_drawn_tile(drawn_tile)
+        return self._place_drawn_tile(drawn_tile)
 
-    def pick_tile_from_stock(self, stock: list[Tile]) -> Tile:
+    def _pick_tile_from_stock(self, stock: list[Tile]) -> Tile:
         """
         Players function to pick a tile from the stock.
         :return: Tile chosen by the player, Tile(default_value) if no tile was picked
@@ -80,7 +81,7 @@ class Player:
         else:
             return Tile(self.board.default_value)
 
-    def place_tile(self, tile, x, y) -> (bool, Tile):
+    def _place_tile(self, tile: Tile, x: int, y: int) -> (bool, Optional[Tile]):
         """
         Function to attempt to place the tile on the board.
         :param tile:
@@ -103,7 +104,7 @@ class Player:
                 )
             return False, None
 
-    def place_stocked_tile(self, tile: Tile) -> Tile:
+    def _place_stocked_tile(self, tile: Tile) -> Tile:
         """
         Place the tile picked from the stock
         :param tile: Tile picked by the player
@@ -121,11 +122,11 @@ class Player:
                 print("Invalid input.")
                 continue
 
-            spot_correct, exchanged_tile = self.place_tile(tile, x, y)
+            spot_correct, exchanged_tile = self._place_tile(tile, x, y)
             if spot_correct:
                 return exchanged_tile
 
-    def place_drawn_tile(self, tile: Tile) -> Tile:
+    def _place_drawn_tile(self, tile: Tile) -> Tile:
         """
         Place the tile drawn from the queue_tiles
         :param tile: Tile drawn by the player
@@ -141,7 +142,7 @@ class Player:
                 print("Invalid input.")
                 continue
 
-            spot_correct, exchanged_tile = self.place_tile(tile, x, y)
+            spot_correct, exchanged_tile = self._place_tile(tile, x, y)
             if spot_correct:
                 return exchanged_tile
 
@@ -156,7 +157,7 @@ class BotPlayer(Player):
     - If there aren't, discard the Tile
     """
 
-    def pick_tile_from_stock(self, stock: list[Tile]) -> Tile:
+    def _pick_tile_from_stock(self, stock: list[Tile]) -> Tile:
         """
         Players function to pick a tile.
         :return: Tile drawn by the Bot
@@ -191,9 +192,9 @@ class BotPlayer(Player):
             for col in range(self.board.board.shape[1]):
                 if target_diag != row + col:
                     continue
-                current_tile_diag = max(0, min(6, self.board.board[row, col] // 3))
+                current_tile_diag = max(0, min(6, cast(Tile, self.board.board[row, col]) // 3))
                 if self.board.board[row, col] == -1 or current_tile_diag != row + col:
-                    r, changed_tile = self.place_tile(tile, row, col)
+                    r, changed_tile = self._place_tile(tile, row, col)
                     if r:
                         return changed_tile
         return tile
