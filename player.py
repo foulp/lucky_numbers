@@ -175,7 +175,7 @@ class BotPlayer(Player):
                     return tile
         return Tile(self.board.default_value)
 
-    def place_drawn_tile(self, tile: Tile) -> Tile:
+    def _place_drawn_tile(self, tile: Tile) -> Tile:
         """
         Place the tile
         :param tile: Tile drawn by the Bot
@@ -199,5 +199,5 @@ class BotPlayer(Player):
                         return changed_tile
         return tile
 
-    def place_stocked_tile(self, tile: Tile) -> Tile:
-        return self.place_drawn_tile(tile)
+    def _place_stocked_tile(self, tile: Tile) -> Tile:
+        return self._place_drawn_tile(tile)
